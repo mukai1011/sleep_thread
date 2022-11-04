@@ -1,3 +1,15 @@
+[tool.poetry]
+name = "sleep-without-gil"
+version = "0.1.0"
+description = ""
+authors = ["Koutaro Mukai <mukai.k1011k@outlook.jp>"]
+readme = "README.md"
+packages = [{include = "sleep_without_gil"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+
 [build-system]
 requires = [
     "setuptools>=42",
