@@ -19,18 +19,18 @@ st.join()
 
 # you **cannot** call start multiple times without a join
 try:
-    m.start(duration, event)
-    m.start(duration, event)
+    st.start(duration, event)
+    st.start(duration, event)
 except RuntimeError:
     pass
 finally:
     # Even without join, thread should be terminated when the caller is destroyed, 
     # but of course that's a bad practice.
-    m.join()
+    st.join()
 
 # attempting to join before calling start is also prohibited
 try:
-    m.join()
+    st.join()
 except RuntimeError:
     pass
 
