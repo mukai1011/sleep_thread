@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "sleep-without-gil"
+name = "sleep_thread"
 version = "0.1.0"
 description = ""
 authors = ["Koutaro Mukai <mukai.k1011k@outlook.jp>"]
 readme = "README.md"
-packages = [{include = "sleep_without_gil"}]
+packages = [{include = "sleep_thread"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"

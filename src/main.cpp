@@ -8,7 +8,7 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-std::thread th_;
+std::shared_ptr<std::thread> th_ = nullptr;
 
 class Event
 {
@@ -19,47 +19,52 @@ public:
     bool IsSet() { return flag_; }
 };
 
-void start(std::chrono::duration<long long> duration, Event &event) {
-    auto busy_wait = [](std::chrono::duration<long long> duration, Event &event)
+void BusyWait(std::chrono::duration<long long> duration, Event &event)
+{
+    auto current_time = std::chrono::system_clock::now();
+    while (std::chrono::system_clock::now() < current_time + duration && !event.IsSet())
+        ;
+}
+
+void start(std::chrono::duration<long long> duration, Event &event)
+{
+    if (th_.get() != nullptr)
     {
-        auto current_time = std::chrono::system_clock::now();
-        while (std::chrono::system_clock::now() < current_time + duration && !event.IsSet())
-            ;
-    };
-    th_ = std::thread(busy_wait, duration, std::ref(event));
+        throw std::runtime_error("only one thread can be created at a time (derived from C++)");
+    }
+    th_ = std::make_shared<std::thread>(BusyWait, duration, std::ref(event));
 }
 
-void join() {
-    th_.join();
+void join()
+{
+    if (th_.get() == nullptr)
+    {
+        throw std::runtime_error("cannot join thread before it is started (derived from C++)");
+    }
+    th_->join();
+    th_.reset();
 }
-
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(python_example, m)
+PYBIND11_MODULE(sleep_thread, m)
 {
     py::class_<Event>(m, "Event")
         .def(py::init())
         .def("set", &Event::Set)
         .def("is_set", &Event::IsSet);
 
-    m.def("start", [](std::chrono::duration<long long> duration, Event &cancel) {
+    m.def(
+        "start", [](std::chrono::duration<long long> duration, Event &event)
+        {
         py::gil_scoped_release _;
-        start(duration, cancel);
-    }, R"pbdoc(
-        Subtract two numbers
+        start(duration, event); });
 
-        Some other explanation about the subtract function.
-    )pbdoc");
-
-    m.def("join", []() {
+    m.def(
+        "join", []()
+        {
         py::gil_scoped_acquire _;
-        join();
-    }, R"pbdoc(
-        Subtract two numbers
-
-        Some other explanation about the subtract function.
-    )pbdoc");
+        join(); });
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

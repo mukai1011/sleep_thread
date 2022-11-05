@@ -3,7 +3,7 @@ import threading
 import multiprocessing
 from time import perf_counter
 
-import python_example as m
+import sleep_thread as st
 
 def sleep(duration: timedelta, event):
     total_seconds = duration.total_seconds()
@@ -37,11 +37,11 @@ def sub_thread(duration: timedelta, event):
     
     # 3. m.start() ~ m.join()のビジーウェイト
     print("--- C++ ---")
-    m_event = m.Event()
+    m_event = st.Event()
     
     current_time = perf_counter()
-    m.start(duration, m_event)
-    m.join()
+    st.start(duration, m_event)
+    st.join()
     print(perf_counter() - current_time)
     
     print()
