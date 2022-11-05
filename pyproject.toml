@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "sleep_thread"
 version = "0.1.0"
-description = ""
+description = "Provides sleep function not affected by the GIL."
 authors = ["Koutaro Mukai <mukai.k1011k@outlook.jp>"]
 readme = "README.md"
 packages = [{include = "sleep_thread"}]
